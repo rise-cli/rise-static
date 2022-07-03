@@ -8,8 +8,8 @@ module.exports = {
                     type: 'SOURCE',
                     name: 'GithubRepo',
                     repo: 'rise-static',
-                    owner: 'rise-cli',
-                    outputArtifact: 'sourceZip'
+                    owner: 'rise-cli'
+                    //  outputArtifact: 'sourceZip'
                 }
             ]
         },
@@ -26,9 +26,9 @@ module.exports = {
                 {
                     type: 'BUILD',
                     name: 'DeployDocumentation',
-                    script: '/docs.yml',
-                    inputArtifact: 'sourceZip',
-                    outputArtifact: 'docZip'
+                    script: '/docs.yml'
+                    // inputArtifact: 'sourceZip',
+                    // outputArtifact: 'docZip'
                 },
                 {
                     type: 'BUILD',
@@ -36,9 +36,9 @@ module.exports = {
                     script: '/publish.yml',
                     env: {
                         NPM_TOKEN: '@secret.NPM_KEY'
-                    },
-                    inputArtifact: 'sourceZip',
-                    outputArtifact: 'publishedZip'
+                    }
+                    // inputArtifact: 'sourceZip',
+                    // outputArtifact: 'publishedZip'
                 }
             ]
         }

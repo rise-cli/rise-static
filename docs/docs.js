@@ -1,5 +1,5 @@
 module.exports = {
-    title: 'Rise Docs',
+    title: 'Rise Static',
     sidebar: {
         Intro: 'index.md'
     }

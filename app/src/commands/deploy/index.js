@@ -22,7 +22,7 @@ async function checkDeployStatus(cli, amplify, appId, jobId, count) {
         jobStatus.job.summary.status === 'PENDING' ||
         jobStatus.job.summary.status === 'RUNNING'
     ) {
-        const msg = count < 1 ? 'Configure CDN...' : 'Deploying to CDN...'
+        const msg = 'Deploying to AWS Amplify...'
         cli.terminal.clear()
         cli.terminal.printInfoMessage(msg)
         await wait()
@@ -38,9 +38,18 @@ module.exports.deploy = async function deploy(cli, aws) {
      */
     cli.terminal.clear()
     cli.terminal.printInfoMessage('Checking project configuration...')
+    let projectData
+
+    try {
+        projectData = await getProjectData(cli)
+    } catch (e) {
+        cli.terminal.clear()
+        cli.terminal.printErrorMessage('Rise Static Validation Error')
+        cli.terminal.printInfoMessage('- ' + e.message)
+        return
+    }
     const stage = 'dev'
     const region = 'us-east-1'
-    let projectData = await getProjectData(cli)
     const deployName = projectData.title.replace(/\s/g, '') + 'static'
 
     /**
@@ -59,7 +68,7 @@ module.exports.deploy = async function deploy(cli, aws) {
      * Uploading code to s3 bucket
      */
     cli.terminal.clear()
-    cli.terminal.printInfoMessage('Deploying code...')
+    cli.terminal.printInfoMessage('Uploading code to AWS S3...')
     await cli.filesystem.zipFolder({
         source: '/dist',
         target: '/' + '.static' + '/',
@@ -77,7 +86,7 @@ module.exports.deploy = async function deploy(cli, aws) {
      * Execute amplify deployment
      */
     cli.terminal.clear()
-    cli.terminal.printInfoMessage('Configure CDN...')
+    cli.terminal.printInfoMessage('Starting an AWS Amplify deployment...')
     const res = await amplify
         .startDeployment({
             appId: appId,

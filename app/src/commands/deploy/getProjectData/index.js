@@ -24,7 +24,17 @@ async function getConfig(cli) {
     }
 
     if (!config.title || typeof config.title !== 'string') {
-        throw new Error('static.js file must have a title defined')
+        throw new Error(
+            'static.js file must export an object with a title defined'
+        )
+    }
+
+    await await cli.filesystem.makeDir('/dist')
+
+    try {
+        await cli.filesystem.getFile('/dist/index.html')
+    } catch (e) {
+        throw new Error('/dist folder must have an index.html file')
     }
 
     return config
