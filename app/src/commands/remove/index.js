@@ -1,49 +1,42 @@
 const { getProjectData } = require('../deploy/getProjectData')
-const { deployApplicationBucket } = require('../deploy/deployApplicationBucket')
-const { emptyBucket } = require('../deploy/utils/bucket')
+const {removeAction} = require('../removeAction/')
 
 async function main(cli, aws) {
-    /**
-     * Get project  info locally
-     */
-    const stage = 'dev'
-    const region = 'us-east-1'
-    let projectData = await getProjectData(cli)
-
-    /**
-     * Get Projject info remotely if local isnt available
-     */
-    const deployName = projectData.title.replace(/\s/g, '') + 'static'
-    if (!projectData.bucketName) {
-        const bucketName = await deployApplicationBucket(
-            cli,
-            aws,
-            deployName,
-            stage
-        )
-        projectData.bucketName = bucketName
+    try {
+        projectData = await getProjectData(cli)
+    } catch (e) {
+        cli.terminal.clear()
+        cli.terminal.printErrorMessage('Rise Static Validation Error')
+        cli.terminal.printInfoMessage('- ' + e.message)
+        return
     }
 
-    const stackName = deployName + stage + '-bucket'
+    const config = {
+        name: projectData.name,
+        bucketName: projectData.bucketName,
+        appId: projectData.apiId,
+        region: 'us-east-1',
+        stage: 'dev',
+        deployName: projectData.name.replace(/\s/g, '') + 'static',
+        auth: projectData.auth && {
+            username: projectData.auth.username,
+            password: projectData.auth.password
+        },
+        hiddenFolder: '.static',
+        zip: {
+            source: '/' + projectData.distFolder,
+            target: '/' + '.static' + '/',
+            zipName: 'app'
+        },
+        upload: {
+            key: 'app.zip'
+        },
+        deploy: {
+            branch: 'main'
+        }
+    }
 
-    /**
-     * Empty bucket
-     */
-    await emptyBucket({
-        bucketName: projectData.bucketName
-    })
-
-    /**
-     * Remove stack
-     */
-    await aws.cloudformation.removeStack({
-        name: stackName,
-        template: ''
-    })
-
-    await cli.filesystem.removeDir('/.static')
-    cli.terminal.clear()
-    cli.terminal.printSuccessMessage('Site Successfully Removed')
+    await removeAction(cli, aws, config)
 }
 
 module.exports = main

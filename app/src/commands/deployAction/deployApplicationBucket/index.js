@@ -2,7 +2,9 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
     cli,
     aws,
     appName,
-    stage
+    stage,
+    hiddenFolder,
+    auth
 ) {
     /**
      * Deploy Stack
@@ -15,7 +17,7 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
             AmplifyApp: {
                 Type: 'AWS::Amplify::App',
                 Properties: {
-                    Name: appName
+                    Name: appName,
                 }
             },
             AmplifyMainBranch: {
@@ -32,6 +34,14 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
             AmplifyId: {
                 Value: { 'Fn::GetAtt': ['AmplifyApp', 'AppId'] }
             }
+        }
+    }
+
+    if (auth) {
+        template.Resources.AmplifyApp.Properties.BasicAuthConfig = {
+            "EnableBasicAuth" : true,
+            "Password" : auth.password, 
+            "Username" : auth.username
         }
     }
 
@@ -63,7 +73,7 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
     })
 
     cli.filesystem.writeFile({
-        path: '/.static/data.js',
+        path: `/${hiddenFolder}/data.js`,
         content: `module.exports = { bucketName: "${MainBucket}", appId: "${AmplifyId}"}`
     })
 

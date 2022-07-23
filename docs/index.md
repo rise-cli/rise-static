@@ -4,7 +4,7 @@ Rise Static is a CLI that makes deploying static websites on AWS as easy as poss
 
 ## How to install
 
-```bash
+```js
 npm i -g rise-static
 ```
 
@@ -12,7 +12,7 @@ npm i -g rise-static
 
 `cd` into a project and run the following command in your terminal:
 
-```bash
+```js
 rise-static deploy
 ```
 
@@ -20,19 +20,24 @@ rise-static deploy
 
 `cd` into a project and run the following command in your terminal:
 
-```bash
+```js
 rise-static remove
 ```
 
 ## What a project looks like
 
-A project must have a `static.js` file at the root of the project that looks like the following:
+A project must have a `rise.js` file at the root of the project that looks like the following:
 
 ```js
-// static.js
+// rise.js
 module.exports = {
-    title: 'Title of Project'
+    name: 'Name of Project',
+    dist: 'build',  //  optional
+    auth: {         // optional
+        username: 'my-user-name',
+        password: 'my-password-that-is-at-least-8-characters'
+    }
 }
 ```
 
-Rise Static will also assume that the files you want to deploy are in a `dist` folder, which has at least 1 file called `index.html`
+If your dist folder is not defined in a `rise.js` config, Rise Static will assume that the files you want to deploy are in a `dist` folder, which has at least 1 file called `index.html`
