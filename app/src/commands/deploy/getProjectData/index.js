@@ -2,18 +2,17 @@ const { makeHiddenFolder } = require('./makeHiddenFolder.js')
 async function getBucketInfo(cli) {
     let bucketName = undefined
     let appId = undefined
-        let distFolder = undefined
+    let distFolder = undefined
     try {
         const data = await cli.filesystem.getJsFile('/.static/data.js')
-        bucketName = data.bucketName       
-        appId = data.appId 
+        bucketName = data.bucketName
+        appId = data.appId
     } catch (e) {
         bucketName = undefined
     }
     return {
         bucketName,
-        appId,
-        
+        appId
     }
 }
 
@@ -50,25 +49,31 @@ exports.getProjectData = async function getProjectData(cli) {
 
     if (config.auth && !config.auth.username) {
         throw new Error(`rise.js auth must have a username property`)
-    } 
+    }
 
     if (config.auth && !config.auth.password) {
         throw new Error(`rise.js auth must have a password property`)
-    } 
+    }
 
-    if (config.auth.password.length < 8) {
+    if (
+        config.auth &&
+        config.auth.password &&
+        config.auth.password.length < 8
+    ) {
         throw new Error(`rise.js auth password must be at least 8 characters`)
-    } 
+    }
 
     let projectData = {
         name: config.name,
         bucketName,
         appId,
-        distFolder: config.dist, 
-        auth: !config.auth ? false : {
-            username: config.auth.username,
-            password: config.auth.password
-        }
+        distFolder: config.dist,
+        auth: !config.auth
+            ? false
+            : {
+                  username: config.auth.username,
+                  password: config.auth.password
+              }
     }
 
     return projectData
