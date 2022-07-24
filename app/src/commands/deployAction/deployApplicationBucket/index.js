@@ -17,7 +17,7 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
             AmplifyApp: {
                 Type: 'AWS::Amplify::App',
                 Properties: {
-                    Name: appName,
+                    Name: appName
                 }
             },
             AmplifyMainBranch: {
@@ -39,9 +39,9 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
 
     if (auth) {
         template.Resources.AmplifyApp.Properties.BasicAuthConfig = {
-            "EnableBasicAuth" : true,
-            "Password" : auth.password, 
-            "Username" : auth.username
+            EnableBasicAuth: true,
+            Password: auth.password,
+            Username: auth.username
         }
     }
 
@@ -58,8 +58,8 @@ exports.deployApplicationBucket = async function deployApplicationBucket(
             backoffRate: 1.1,
             maxRetries: 200,
             onCheck: () => {
-                cli.terminal.clear()
-                cli.terminal.printInfoMessage('Deploying Infrastructure...')
+                //cli.terminal.clear()
+                //cli.terminal.printInfoMessage('Deploying Infrastructure...')
             }
         }
     })

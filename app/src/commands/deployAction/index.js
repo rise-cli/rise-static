@@ -1,7 +1,52 @@
 //const { getProjectData } = require('./getProjectData')
 const { deployApplicationBucket } = require('./deployApplicationBucket')
 const realAws = require('aws-sdk')
+let loadingInterval
+const printLoadingMessage = (msg) => {
+    const process = require('process')
+    const std = process.stdout
+    const eighties = [
+        '▰▱▱▱▱▱▱',
+        '▰▰▱▱▱▱▱',
+        '▰▰▰▱▱▱▱',
+        '▰▰▰▰▱▱▱',
+        '▰▰▰▰▰▱▱',
+        '▰▰▰▰▰▰▱',
+        '▰▰▰▰▰▰▰',
+        '▱▰▰▰▰▰▰',
+        '▱▱▰▰▰▰▰',
+        '▱▱▱▰▰▰▰',
+        '▱▱▱▱▰▰▰',
+        '▱▱▱▱▱▰▰',
+        '▱▱▱▱▱▱▰'
+    ]
 
+    const dots = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+
+    const spinnerFrames = dots
+    let index = 0
+
+    const log = () => {
+        process.stdout.write('\x1B[?25l')
+        let line = spinnerFrames[index]
+
+        if (!line) {
+            index = 0
+            line = spinnerFrames[index]
+        }
+
+        // rdl.cursorTo(std, 0, 0)
+        process.stdout.clearLine()
+        process.stdout.cursorTo(0)
+        std.write('\x1b[31m' + line + '\x1b[37m' + ' ' + msg)
+
+        index = index >= spinnerFrames.length ? 0 : index + 1
+    }
+
+    clearInterval(loadingInterval)
+    log()
+    loadingInterval = setInterval(log, 100)
+}
 
 const wait = () => new Promise((r) => setTimeout(r, 2000))
 async function checkDeployStatus(cli, amplify, appId, jobId, count) {
@@ -21,8 +66,8 @@ async function checkDeployStatus(cli, amplify, appId, jobId, count) {
         jobStatus.job.summary.status === 'RUNNING'
     ) {
         const msg = 'Deploying to AWS Amplify...'
-        cli.terminal.clear()
-        cli.terminal.printInfoMessage(msg)
+        //cli.terminal.clear()
+        //cli.terminal.printInfoMessage(msg)
         await wait()
         return await checkDeployStatus(cli, amplify, appId, jobId, count + 1)
     }
@@ -55,13 +100,14 @@ async function checkDeployStatus(cli, amplify, appId, jobId, count) {
 
 module.exports.deployAction = async function deploy(cli, aws, config) {
     const amplify = new realAws.Amplify({
-        region: config.region//'us-east-1'
+        region: config.region //'us-east-1'
     })
     /**
      * Get project info locally
      */
     cli.terminal.clear()
-    cli.terminal.printInfoMessage('Checking project configuration...')
+    printLoadingMessage('Checking project configuration')
+
     let projectData = {
         name: config.name,
         bucketName: config.bucketName,
@@ -76,17 +122,24 @@ module.exports.deployAction = async function deploy(cli, aws, config) {
     //     cli.terminal.printInfoMessage('- ' + e.message)
     //     return
     // }
-    const stage = config.stage//'dev'
-    const region = config.region//'us-east-1'
-    const deployName = config.deployName//projectData.name.replace(/\s/g, '') + 'static'
+    const stage = config.stage //'dev'
+    const region = config.region //'us-east-1'
+    const deployName = config.deployName //projectData.name.replace(/\s/g, '') + 'static'
 
     /**
      * Deploy Infrastructure if needed
      */
     if (!projectData.bucketName || !projectData.appId) {
         cli.terminal.clear()
-        cli.terminal.printInfoMessage('Deploying Infrastructure...')
-        const dep = await deployApplicationBucket(cli, aws, deployName, stage, config.hiddenFolder, config.auth)
+        printLoadingMessage('Deploying Infrastructure')
+        const dep = await deployApplicationBucket(
+            cli,
+            aws,
+            deployName,
+            stage,
+            config.hiddenFolder,
+            config.auth
+        )
         projectData.bucketName = dep.bucket
         projectData.appId = dep.appId
     }
@@ -96,25 +149,27 @@ module.exports.deployAction = async function deploy(cli, aws, config) {
      * Uploading code to s3 bucket
      */
     cli.terminal.clear()
-    cli.terminal.printInfoMessage('Uploading code to AWS S3...')
+    printLoadingMessage('Uploading code to AWS S3')
     await cli.filesystem.zipFolder({
-        source: config.zip.source,//'/dist',
-        target: config.zip.target,//'/' + '.static' + '/',
-        name: config.zip.zipName//'app'
+        source: config.zip.source, //'/dist',
+        target: config.zip.target, //'/' + '.static' + '/',
+        name: config.zip.zipName //'app'
     })
 
-    const uploadFile = await cli.filesystem.getFile(`/${config.hiddenFolder}/${config.upload.key}`)
+    const uploadFile = await cli.filesystem.getFile(
+        `/${config.hiddenFolder}/${config.upload.key}`
+    )
     await aws.s3.uploadFile({
         file: uploadFile,
         bucket: projectData.bucketName,
-        key: config.upload.key//'app.zip'
+        key: config.upload.key //'app.zip'
     })
 
     /**
      * Execute amplify deployment
      */
     cli.terminal.clear()
-    cli.terminal.printInfoMessage('Starting an AWS Amplify deployment...')
+    printLoadingMessage('Deploying to AWS Amplify')
     const res = await amplify
         .startDeployment({
             appId: appId,
@@ -123,7 +178,7 @@ module.exports.deployAction = async function deploy(cli, aws, config) {
         })
         .promise()
     await checkDeployStatus(cli, amplify, appId, res.jobSummary.jobId, 0)
-
+    clearInterval(loadingInterval)
     /**
      * Display Successful Result
      */
