@@ -1,1 +1,1 @@
-module.exports = { bucketName: "risestaticdocsdev-bucket-mainbucket-1xm7krqntb1sq"}
+module.exports = { bucketName: "risestaticdocsdev-bucket-mainbucket-1xm7krqntb1sq", appId: "d24s498j2k42x1"}

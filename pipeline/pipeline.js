@@ -27,9 +27,8 @@ module.exports = {
                     type: 'BUILD',
                     name: 'DeployDocumentation',
                     script: '/docs.yml'
-                    // inputArtifact: 'sourceZip',
-                    // outputArtifact: 'docZip'
                 },
+
                 {
                     type: 'BUILD',
                     name: 'PublishToNpm',
@@ -37,8 +36,6 @@ module.exports = {
                     env: {
                         NPM_TOKEN: '@secret.NPM_KEY'
                     }
-                    // inputArtifact: 'sourceZip',
-                    // outputArtifact: 'publishedZip'
                 }
             ]
         }

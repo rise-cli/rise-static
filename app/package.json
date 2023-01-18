@@ -1,20 +1,21 @@
 {
     "name": "rise-static",
-    "version": "0.0.6",
+    "version": "0.0.16",
     "description": "",
-    "main": "./src/index.js",
+    "main": "./src/index.mjs",
     "bin": {
-        "rise-static": "./src/index.js"
+        "rise-static": "./index.mjs"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "node --test && echo \"✅ Tests Pass\"",
+        "release": "npm run test && npm publish"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "aws-sdk": "^2.1162.0",
-        "rise-aws-foundation": "^0.0.3",
-        "rise-cli-foundation": "^0.0.10"
+        "rise-cli-foundation": "^0.0.14",
+        "rise-deploystatic": "^0.0.2",
+        "rise-filesystem-foundation": "^0.0.1"
     }
 }

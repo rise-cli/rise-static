@@ -26,18 +26,19 @@ rise-static remove
 
 ## What a project looks like
 
-A project must have a `rise.js` file at the root of the project that looks like the following:
+A project must have a `rise.mjs` file at the root of the project that looks like the following:
 
 ```js
 // rise.js
-module.exports = {
+export default {
     name: 'Name of Project',
-    dist: 'build',  //  optional
-    auth: {         // optional
+    dist: 'build', //  optional
+    auth: {
+        // optional
         username: 'my-user-name',
         password: 'my-password-that-is-at-least-8-characters'
     }
 }
 ```
 
-If your dist folder is not defined in a `rise.js` config, Rise Static will assume that the files you want to deploy are in a `dist` folder, which has at least 1 file called `index.html`
+If your dist folder is not defined in a `rise.mjs` config, Rise Static will assume that the files you want to deploy are in a `dist` folder, which has at least 1 file called `index.html`
