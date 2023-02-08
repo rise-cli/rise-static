@@ -1,0 +1,1 @@
+export const config = { bucketName: "risestaticdev-bucketdev-mainbucket-63t04kiiuu9x"}
