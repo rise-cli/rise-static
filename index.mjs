@@ -3,6 +3,7 @@ import * as cli from 'rise-cli-foundation'
 import * as filesystem from 'rise-filesystem-foundation'
 import { deployStaticSite } from 'rise-deploystatic'
 import { getProjectData } from './getProjectData.mjs'
+import { pull } from './pull.mjs'
 import process from 'node:process'
 
 const flags = [
@@ -84,6 +85,35 @@ cli.addCommand({
     ],
     action: async (flags) => {
         console.log('in development...')
+    }
+})
+
+cli.addCommand({
+    command: 'pull',
+    flags: [
+        {
+            flag: '--stage',
+            default: 'dev'
+        },
+        {
+            flag: '--region',
+            default: 'us-east-1'
+        }
+    ],
+    action: async (flags) => {
+        /**
+         * Get Project Config
+         */
+        let projectData = {}
+        try {
+            projectData = await getProjectData(cli)
+        } catch (e) {
+            cli.clear()
+            cli.printErrorMessage('Rise Static Validation Error')
+            cli.printInfoMessage('- ' + e.message)
+            return
+        }
+        await pull(projectData, flags.region)
     }
 })
 

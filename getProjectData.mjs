@@ -83,6 +83,8 @@ export async function getProjectData() {
         bucketName,
         appId,
         distFolder: config.dist || '/dist',
+        backendStack: config.backendStack || 'none',
+        env: config.env || {},
         auth: !config.auth
             ? false
             : {
